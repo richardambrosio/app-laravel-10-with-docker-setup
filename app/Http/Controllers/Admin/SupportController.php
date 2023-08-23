@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\CreateSupportDTO;
+use App\DTO\UpdateSupportDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateSupportRequest;
 use App\Models\Support;
+use App\Services\SupportService;
 use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {
+    public function __construct(
+        protected SupportService $service
+    ){}
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $supports = Support::all();
+        $supports = $this->service->getAll($request->filter);
+
         return view('admin.supports.index', compact('supports'));
     }
 
@@ -31,10 +39,9 @@ class SupportController extends Controller
      */
     public function store(StoreUpdateSupportRequest $request)
     {
-        $data = $request->validated();
-        $data['status'] = 'a';
-
-        Support::create($data);
+        $this->service->new(
+            CreateSupportDTO::makeFromRequest($request)
+        );
         
         return redirect()->route('supports.index');
     }
@@ -42,9 +49,9 @@ class SupportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string|int $id)
+    public function show(string $id)
     {
-        $support = Support::find($id);
+        $support = $this->service->findOne($id);
         if (!$support) return back();
 
         return view('admin.supports.show', compact('support'));
@@ -53,9 +60,9 @@ class SupportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Support $support, string|int $id)
+    public function edit(string $id)
     {
-        $support = $support->find($id);
+        $support = $this->service->findOne($id);
         if (!$support) return back();
 
         return view('admin.supports.edit', compact('support'));
@@ -66,23 +73,20 @@ class SupportController extends Controller
      */
     public function update(StoreUpdateSupportRequest $request, Support $support, string|int $id)
     {
-        if (!$support = $support->find($id)) return back();
+        $support = $this->service->update(
+            UpdateSupportDTO::makeFromRequest($request)
+        );
 
-        $support->update($request->only([
-            'subject', 
-            'body'
-        ]));
-
+        if (!$support) return back();
         return redirect()->route('supports.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string|int $id)
+    public function destroy(string $id)
     {
-        if (!$support = Support::find($id)) return back();
-        $support->delete();
+        $this->service->delete($id);
 
         return redirect()->route('supports.index');
     }
