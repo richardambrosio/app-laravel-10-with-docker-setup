@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUpdateSupportRequest;
 use App\Models\Support;
 use Illuminate\Http\Request;
 
@@ -28,9 +29,9 @@ class SupportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUpdateSupportRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
         $data['status'] = 'a';
 
         Support::create($data);
@@ -63,7 +64,7 @@ class SupportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Support $support, string|int $id)
+    public function update(StoreUpdateSupportRequest $request, Support $support, string|int $id)
     {
         if (!$support = $support->find($id)) return back();
 
