@@ -2,13 +2,14 @@
 
 namespace App\DTO\Supports;
 
+use App\Enums\SupportStatusEnum;
 use App\Http\Requests\StoreUpdateSupportRequest;
 
 class CreateSupportDTO
 {
     public function __construct(
         public string $subject,
-        public string $status,
+        public SupportStatusEnum $status,
         public string $body
     ) {}
 
@@ -16,7 +17,7 @@ class CreateSupportDTO
     {
         return new self(
             $request->subject,
-            'a',
+            SupportStatusEnum::A,
             $request->body
         );
     }
