@@ -49,7 +49,9 @@ class SupportController extends Controller
             CreateSupportDTO::makeFromRequest($request)
         );
         
-        return redirect()->route('supports.index');
+        return redirect()
+            ->route('supports.index')
+            ->with('message', 'Cadastrado com sucesso.');
     }
 
     /**
@@ -80,11 +82,14 @@ class SupportController extends Controller
     public function update(StoreUpdateSupportRequest $request, Support $support, string|int $id)
     {
         $support = $this->service->update(
-            UpdateSupportDTO::makeFromRequest($request)
+            UpdateSupportDTO::makeFromRequest($request, $id)
         );
 
         if (!$support) return back();
-        return redirect()->route('supports.index');
+        
+        return redirect()
+            ->route('supports.index')
+            ->with('message', 'Atualizado com sucesso.');
     }
 
     /**
@@ -94,6 +99,8 @@ class SupportController extends Controller
     {
         $this->service->delete($id);
 
-        return redirect()->route('supports.index');
+        return redirect()
+            ->route('supports.index')
+            ->with('message', 'Excluído com sucesso.');
     }
 }
